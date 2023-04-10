@@ -5,6 +5,10 @@ VisualStudioVersion = 17.3.32819.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Manabot2", "Manabot2\Manabot2.csproj", "{C2EFEDCA-F3EC-4B02-884D-4EB27FDF9E13}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BiliApi", "BiliApi.Net\BiliApi.csproj", "{4AFFFE66-AB27-4305-AE94-35B5E2E5ABB2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BiliveDanmakuAgent", "BiliveDanmakuAgent\BiliveDanmakuAgent.csproj", "{99EDF84A-0020-4254-8A51-28B461B713AC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,22 @@ Global
 		{C2EFEDCA-F3EC-4B02-884D-4EB27FDF9E13}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C2EFEDCA-F3EC-4B02-884D-4EB27FDF9E13}.Release|x64.ActiveCfg = Release|Any CPU
 		{C2EFEDCA-F3EC-4B02-884D-4EB27FDF9E13}.Release|x64.Build.0 = Release|Any CPU
+		{4AFFFE66-AB27-4305-AE94-35B5E2E5ABB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AFFFE66-AB27-4305-AE94-35B5E2E5ABB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AFFFE66-AB27-4305-AE94-35B5E2E5ABB2}.Debug|x64.ActiveCfg = Debug|x64
+		{4AFFFE66-AB27-4305-AE94-35B5E2E5ABB2}.Debug|x64.Build.0 = Debug|x64
+		{4AFFFE66-AB27-4305-AE94-35B5E2E5ABB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AFFFE66-AB27-4305-AE94-35B5E2E5ABB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AFFFE66-AB27-4305-AE94-35B5E2E5ABB2}.Release|x64.ActiveCfg = Release|x64
+		{4AFFFE66-AB27-4305-AE94-35B5E2E5ABB2}.Release|x64.Build.0 = Release|x64
+		{99EDF84A-0020-4254-8A51-28B461B713AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99EDF84A-0020-4254-8A51-28B461B713AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99EDF84A-0020-4254-8A51-28B461B713AC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{99EDF84A-0020-4254-8A51-28B461B713AC}.Debug|x64.Build.0 = Debug|Any CPU
+		{99EDF84A-0020-4254-8A51-28B461B713AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99EDF84A-0020-4254-8A51-28B461B713AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99EDF84A-0020-4254-8A51-28B461B713AC}.Release|x64.ActiveCfg = Release|Any CPU
+		{99EDF84A-0020-4254-8A51-28B461B713AC}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
