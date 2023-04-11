@@ -5,11 +5,27 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyVersion>23.4.101.21</AssemblyVersion>
+    <FileVersion>23.4.101.21</FileVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.15" />
+    <PackageReference Include="Mirai-CSharp" Version="2.1.9" />
+    <PackageReference Include="Mirai-CSharp.HttpApi" Version="2.1.9" />
+    <PackageReference Include="MySql.Data" Version="8.0.32.1" />
+    <PackageReference Include="QRCoder" Version="1.4.3" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BiliApi.Net\BiliApi.csproj" />
     <ProjectReference Include="..\BiliveDanmakuAgent\BiliveDanmakuAgent.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
