@@ -203,7 +203,7 @@ namespace Manabot2.Mysql
                     { "@uid", uid},
                     { "@code", authcode}
                 };
-            execsql("UPDATE bili_qqbound SET qq = @code , type = 10 WHERE uid = @uid;", args, out int a);
+            execsql("INSERT INTO bili_qqbound (uid, qq, type) VALUES (@uid, @code, 10);", args, out int a);
             return (a > 0);
         }
 

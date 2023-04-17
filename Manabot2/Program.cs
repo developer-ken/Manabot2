@@ -16,6 +16,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -25,6 +26,7 @@ namespace Manabot2
     internal class Program
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(Program));
+        private static System.Timers.Timer timer_sendlowlevelqqmsg;
         static int Main(string[] args)
         {
             DateTime start = DateTime.Now;
@@ -177,27 +179,36 @@ namespace Manabot2
                     File.WriteAllText("biliaccount.secrets.json", blogin.Serilize());
                     break;
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 log.Error("Fatal error happened in BiliLogin", ex);
                 return 4;
             }
             #endregion
-             
+
             #region 连接Bilibili直播间
             try
             {
                 //TODO: 重构底层，支持long长度的LiveroonId
                 GlobalVar.danmakuhan = new EventHandlers.BiliDanmakuHandler(GlobalVar.bilisession, (int)GlobalVar.LiveroomId);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 log.Error("Fatal error happened in BiliDanmakuHandler", ex);
                 return 5;
             }
             #endregion
 
+            timer_sendlowlevelqqmsg = new System.Timers.Timer(1000 * 60 * 60);
+            timer_sendlowlevelqqmsg.AutoReset = true;
+            timer_sendlowlevelqqmsg.Elapsed += Timer_sendlowlevelqqmsg_Elapsed;
+            timer_sendlowlevelqqmsg.Enabled = true;
+
             var seconds = (DateTime.Now - start).TotalSeconds;
             log.Info("Done! System loaded in " + seconds + "s.");
+
+            //GlobalVar.danmakuhan.SendCrewCode(23696210);
 
             #region 异步错误处理器
             while (true)
@@ -205,12 +216,30 @@ namespace Manabot2
                 try
                 {
                     Task.WaitAny(GlobalVar.BackgroundTasks.ToArray());
-                }catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     log.Error("Exception in background task", ex);
                 }
             }
             #endregion
+        }
+
+        private static void Timer_sendlowlevelqqmsg_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        {
+            if ((!GlobalVar.IsLive) && (!(DateTime.Now.Hour > 23 || DateTime.Now.Hour < 8)))
+                if (GlobalVar.LevelLowQQs.Count > 0)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine("[自动消息]");
+                    sb.AppendLine("有以下舰长等级不足16，需要添加好友：");
+                    foreach (var qn in GlobalVar.LevelLowQQs)
+                    {
+                        sb.AppendLine(qn.ToString());
+                    }
+                    GlobalVar.LevelLowQQs.Clear();
+                    GlobalVar.qqsession.SendFriendMessageAsync(GlobalVar.Streammer, new PlainMessage(sb.ToString()));
+                }
         }
     }
 }

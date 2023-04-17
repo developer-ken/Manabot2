@@ -39,42 +39,54 @@ namespace Manabot2.Mysql
         {
             get
             {
-                string conStr = "server=" + dbconfig.ServerAddress +
-                ";port=" + dbconfig.ServerPort +
-                ";user=" + dbconfig.UserName +
-                ";password=\"" + dbconfig.UserPassword +
-                "\"; database=" + dbconfig.DbName +
-                ";Allow User Variables=True";
-                int i = 0;
-                while (true)
+                log.Debug("Acquiring lend connection lock...");
+                lock (LiveConnections)
                 {
-                    log.Debug("Lending connection...");
-                    foreach (var cn in LiveConnections)
+                    string conStr = "server=" + dbconfig.ServerAddress +
+                    ";port=" + dbconfig.ServerPort +
+                    ";user=" + dbconfig.UserName +
+                    ";password=\"" + dbconfig.UserPassword +
+                    "\"; database=" + dbconfig.DbName +
+                    ";Allow User Variables=True";
+                    int i = 0;
+                    while (true)
                     {
-                        if (cn.busy) continue;
-                        if (cn.sql.State == System.Data.ConnectionState.Connecting) continue;
-                        if (cn.sql.State != System.Data.ConnectionState.Open)
+                        log.Debug("Lending connection...");
+                        List<DataBase> abandoned_conns = new List<DataBase>();
+                        foreach (var cn in LiveConnections)
                         {
-                            cn.sql = new MySqlConnection(conStr);
-                            cn.sql.OpenAsync();
+                            if (cn.busy) continue;
+                            if (cn.sql.State == System.Data.ConnectionState.Connecting) continue;
+                            if (cn.sql.State != System.Data.ConnectionState.Open)
+                            {
+                                abandoned_conns.Add(cn);
+                                var sql = new MySqlConnection(conStr);
+                                sql.OpenAsync();
+                                LiveConnections.Add(new DataBase(sql));
+                            }
+                            else
+                            {
+                                log.Debug("Connection lent.");
+                                return cn;
+                            }
                         }
-                        else
+
+                        foreach (var cn in abandoned_conns)
                         {
-                            log.Debug("Connection lent.");
-                            return cn;
+                            LiveConnections.Remove(cn);
                         }
+                        i++;
+                        if (i == 5)
+                        {
+                            i = 0;
+                            log.Warn("Failed to allocate db connection after retrying for 5 times.");
+                            log.Warn("Connection to the database might be down.");
+                            log.Warn("Will try again after 30s.");
+                            Thread.Sleep(30000);
+                        }
+                        log.Debug("No live connections! Will retry after 500 ms.");
+                        Thread.Sleep(500);
                     }
-                    i++;
-                    if (i == 5)
-                    {
-                        i = 0;
-                        log.Warn("Failed to allocate db connection after retrying for 5 times.");
-                        log.Warn("Connection to the database might be down.");
-                        log.Warn("Will try again after 30s.");
-                        Thread.Sleep(30000);
-                    }
-                    log.Debug("No live connections! Will retry after 500 ms.");
-                    Thread.Sleep(500);
                 }
             }
         }

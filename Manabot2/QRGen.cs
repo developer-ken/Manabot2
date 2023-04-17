@@ -27,9 +27,9 @@ namespace Manabot2
         {
             Url generator = new Url(url);
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(generator.ToString(), QRCodeGenerator.ECCLevel.Q);
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(generator.ToString(), QRCodeGenerator.ECCLevel.L);
             AsciiQRCode qrCode = new AsciiQRCode(qrCodeData);
-            return qrCode.GetGraphic(1,"■","  ");
+            return qrCode.GetGraphic(1, "██", "  ");
         }
 
         public static IImageMessage Url2ImageMessage(string url)

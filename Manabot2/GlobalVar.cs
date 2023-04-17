@@ -15,6 +15,7 @@ namespace Manabot2
     {
         public static string Server = String.Empty, Key = String.Empty;
         public static long MyQQ, StreammerUID, LiveroomId, LogGroup;
+        public const long Streammer = 1249695750;
         public static int Port;
         public static IMiraiHttpSession qqsession;
         public static BiliSession bilisession;
@@ -23,5 +24,7 @@ namespace Manabot2
         public static BiliDanmakuHandler danmakuhan;
         public static SqlDbConfig dbcfg;
         public static List<Task> BackgroundTasks = new List<Task>();
+        public static List<long> LevelLowQQs = new List<long>();
+        public static bool IsLive = false;
     }
 }
