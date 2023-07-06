@@ -233,5 +233,26 @@ namespace Manabot2.Mysql
                 return 0;
             }
         }
+
+        public bool removeUserBlklist(long q)
+        {
+            Dictionary<string, object> args = new Dictionary<string, object>
+            {
+                { "@qq", q}
+            };
+            return execsql("delete from blacklist_q where qq = @qq;", args);
+        }
+
+        public bool addUserBlklist(long q, string reason, long op)
+        {
+            Dictionary<string, object> args = new Dictionary<string, object>
+            {
+                { "@qq", q},
+                { "@reason", reason },
+                { "@op", op}
+            };
+            execsql("delete from blacklist_q where qq = @qq;", args);//清除这个记录(如果有)
+            return execsql("INSERT INTO blacklist_q (qq, reason, operator, ban_time) VALUES (@qq, @reason, @op, NOW());", args);
+        }
     }
 }

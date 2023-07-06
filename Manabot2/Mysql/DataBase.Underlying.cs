@@ -18,7 +18,7 @@ namespace Manabot2.Mysql
         public static DataBase? me => ConnectionPool.LastInstance?.Connection;
         public MySqlConnection sql;
 
-        public bool connected = false;
+        public bool connected { get => sql.State == ConnectionState.Open; }
 
         #region 底层封装
         public DataBase(MySqlConnection sql)
@@ -26,10 +26,10 @@ namespace Manabot2.Mysql
             this.sql = sql;
         }
 
-
+        [Obsolete("不必再使用此函数。connected属性现在会直接检查连接状态")]
         public bool checkconnection()
         {
-            connected = sql.State == ConnectionState.Open;
+            //connected = ;
             return connected;
         }
 
@@ -56,7 +56,7 @@ namespace Manabot2.Mysql
                 catch (Exception e)
                 {
                     log.Error(e.Message);
-                    connected = false;
+                    //connected = false;
                     busy = false;
                     return false;
                 }
@@ -93,7 +93,7 @@ namespace Manabot2.Mysql
                 catch (Exception e)
                 {
                     log.Error(e.Message);
-                    connected = false;
+                    //connected = false;
                     busy = false;
                     return false;
                 }
@@ -123,7 +123,7 @@ namespace Manabot2.Mysql
                 catch (Exception e)
                 {
                     log.Error(e.Message);
-                    connected = false;
+                    //connected = false;
                     busy = false;
                     rolls = 0;
                     return false;
@@ -158,7 +158,7 @@ namespace Manabot2.Mysql
                 catch (Exception e)
                 {
                     log.Error(e.Message);
-                    connected = false;
+                    //connected = false;
                     busy = false;
                     return -1;
                 }
@@ -202,7 +202,7 @@ namespace Manabot2.Mysql
             catch (Exception e)
             {
                 log.Error(e.Message);
-                connected = false;
+                //connected = false;
                 return null;
             }
         }

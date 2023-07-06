@@ -29,12 +29,25 @@ namespace Manabot2.EventHandlers
             {
                 log.Info(e.FromQQ + " is banned. Deny access.");
                 await session.HandleGroupApplyAsync(e, GroupApplyActions.Deny, "您在黑名单中。如有疑问请联系管理员。");
+                await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ+"\n拒绝进入舰长群：已被拉黑"));
                 return;
             }
             if (DataBase.me.isUserBoundedUID(e.FromQQ))
             {
-                log.Info(e.FromQQ + " already registered. Allow.");
-                await session.HandleGroupApplyAsync(e, GroupApplyActions.Allow);
+                var profile = (await session.GetUserProfileAsync(e.FromQQ));
+                if (profile.Level < 16)
+                {
+                    log.Info(e.FromQQ + " already registered.");
+                    log.Info(e.FromQQ + " level low (" + profile.Level + "/16). Deny access.");
+                    await session.HandleGroupApplyAsync(e, GroupApplyActions.Deny);
+                    await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ + "\n拒绝进入舰长群：等级低(\" + profile.Level + \"/16)"));
+                }
+                else
+                {
+                    log.Info(e.FromQQ + " already registered. Allow.");
+                    await session.HandleGroupApplyAsync(e, GroupApplyActions.Allow);
+                    await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ + "\n通过加群申请：已知QQ"));
+                }
                 return;
             }
             var match = Regex.Match(e.Message, "([1-9][0-9][0-9][0-9][0-9][0-9])");
@@ -61,6 +74,7 @@ namespace Manabot2.EventHandlers
                                 "· 您的加群资格将会被保留。当您的QQ等级达到16级后，申请加入舰长群，将通过绿色通道快速加入\n\n" +
                                 "感谢您的理解与支持。 若对上述信息存在异议，或超过12小时仍未收到鹿野的好友申请，请联系技术负责人鸡蛋(QQ:1250542735)");
                             bss.Close();
+                            await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ + "\n拒绝进入舰长群：等级低(\" + profile.Level + \"/16)\n触发新绑定低等级QQ任务(直播模式)"));
                         }
                         else if(DateTime.Now.Hour>23 || DateTime.Now.Hour < 8) //夜晚免打扰
                         {
@@ -72,6 +86,7 @@ namespace Manabot2.EventHandlers
                                 "· 您的加群资格将会被保留。当您的QQ等级达到16级后，申请加入舰长群，将通过绿色通道快速加入\n\n" +
                                 "感谢您的理解与支持。 若对上述信息存在异议，或超过24小时仍未收到鹿野的好友申请，请联系技术负责人鸡蛋(QQ:1250542735)");
                             bss.Close();
+                            await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ + "\n拒绝进入舰长群：等级低(\" + profile.Level + \"/16)\n触发新绑定低等级QQ任务(免打扰模式)"));
                         }
                         else
                         {
@@ -83,6 +98,7 @@ namespace Manabot2.EventHandlers
                                 "· 您的加群资格将会被保留。当您的QQ等级达到16级后，申请加入舰长群，将通过绿色通道快速加入\n\n" +
                                 "感谢您的理解与支持。 若对上述信息存在异议，或超过24小时仍未收到鹿野的好友申请，请联系技术负责人鸡蛋(QQ:1250542735)");
                             bss.Close();
+                            await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ + "\n拒绝进入舰长群：等级低(\" + profile.Level + \"/16)\n触发新绑定低等级QQ任务"));
                         }
                         return;
                     }
@@ -94,16 +110,19 @@ namespace Manabot2.EventHandlers
                         bss.sendMessage("您已使用QQ" + e.FromQQ + "加入舰长群。此QQ将与您的Uid绑定，以后无需再进行验证。\n" +
                             "若对上述信息存在异议，请联系技术负责人鸡蛋(QQ:1250542735)");
                         bss.Close();
+                        await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ + "\n通过加群申请：验证码核验通过"));
                     }
                 }
                 else
                 {
                     log.Info("Wrong code (" + code + "), Wait for manual approval.");
+                    await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ + "\n加群申请需要人工核对：提供的验证码不可查"));
                 }
             }
             else
             {
                 log.Info("Wait for manual approval.");
+                await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ + "\n加群申请需要人工核对：未提供验证码"));
             }
         }
     }

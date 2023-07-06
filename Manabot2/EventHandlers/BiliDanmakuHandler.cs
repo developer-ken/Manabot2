@@ -139,13 +139,31 @@ namespace Manabot2.EventHandlers
             }
 
             log.Debug("Will use that code. Send to db...");
-            DataBase.me.setCrewAuthCode(userid, authcode);
+            for (int a = 1; a <= 5 && !DataBase.me.setCrewAuthCode(userid, authcode); a++)
+            {
+                log.Warn("DB Error! Retry (" + a + "/5)");
+                if (a >= 5)
+                {
+                    log.Error("Failed to save AuthCode to database after 5 (re)tries.");
+                    PrivMessageSession session1 = PrivMessageSession.openSessionWith(userid, GlobalVar.bilisession);
+                    session1.sendMessage("感谢您加入鹿野灸的大航海！\nAuthCode(#" + authcode + ")\nDB_CONNECTION_FALIURE\n请与舰长群技术负责人鸡蛋(QQ:1250542735)取得联系并提供本页面截图，他将帮助您登记信息、加入舰长群。");
+                    session1.Close();
+
+                    log.Info("Bili UID:" + userid);
+                    log.Info("Use code:" + authcode);
+                    log.Warn("ATTENTION! Additional manual operation required.");
+                    GlobalVar.qqsession.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage("#" + userid + "\n新上舰，正确的验证码为："+ authcode +"\n ### 中央数据库断开，请人工核对入群申请 ###"));
+                    return;
+                }
+            }
 
             log.Debug("Send priv message...");
             PrivMessageSession session = PrivMessageSession.openSessionWith(userid, GlobalVar.bilisession);
             session.sendMessage("感谢您加入鹿野灸的大航海！\n舰长QQ群号：781858343\n加群验证码：" + authcode + "\n加群时，请使用上面的6位验证码作为验证问题的答案。\n验证码使用后即刻失效，请勿外传。");
             session.Close();
+            log.Info("Bili UID:" + userid);
             log.Info("Use code:" + authcode);
+            GlobalVar.qqsession.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage("#" + userid + "\n新上舰，已发送验证码"));
         }
     }
 }

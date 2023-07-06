@@ -60,9 +60,6 @@ namespace Manabot2.Mysql
                             if (cn.sql.State != System.Data.ConnectionState.Open)
                             {
                                 abandoned_conns.Add(cn);
-                                var sql = new MySqlConnection(conStr);
-                                sql.OpenAsync();
-                                LiveConnections.Add(new DataBase(sql));
                             }
                             else
                             {
@@ -74,6 +71,9 @@ namespace Manabot2.Mysql
                         foreach (var cn in abandoned_conns)
                         {
                             LiveConnections.Remove(cn);
+                            var sql = new MySqlConnection(conStr);
+                            sql.OpenAsync();
+                            LiveConnections.Add(new DataBase(sql));
                         }
                         i++;
                         if (i == 5)
