@@ -132,7 +132,8 @@ namespace Manabot2.EventHandlers
         generate_auth_code:
             int authcode = rand.Next(100000, 999999);
             log.Debug("Try code:" + authcode);
-            if (DataBase.me.getUidByAuthcode(authcode) > 0)
+            var uuuid = DataBase.me.getUidByAuthcode(authcode);
+            if (uuuid > 0 && uuuid != userid)
             {
                 log.Debug("Conflict! Generate new one...");
                 goto generate_auth_code; // 发生冲突
@@ -152,7 +153,7 @@ namespace Manabot2.EventHandlers
                     log.Info("Bili UID:" + userid);
                     log.Info("Use code:" + authcode);
                     log.Warn("ATTENTION! Additional manual operation required.");
-                    GlobalVar.qqsession.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage("#" + userid + "\n新上舰，正确的验证码为："+ authcode +"\n ### 中央数据库断开，请人工核对入群申请 ###"));
+                    GlobalVar.qqsession.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage("#" + userid + "\n新上舰，正确的验证码为：" + authcode + "\n ### 中央数据库断开，请人工核对入群申请 ###"));
                     return;
                 }
             }
