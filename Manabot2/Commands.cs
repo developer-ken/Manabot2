@@ -145,6 +145,7 @@ namespace Manabot2
                                 }
                                 break;
                             case "#boundqq":
+                            case "#QQ绑UID":
                                 {
                                     long qquin, biliuid;
                                     if (!long.TryParse(cmd[2], out qquin))
@@ -172,6 +173,45 @@ namespace Manabot2
                                     var bs = PrivMessageSession.openSessionWith(biliuid, GlobalVar.bilisession);
                                     bs.sendMessage("[自动回复] 管理员已将您当前账号绑定到QQ:" + long.Parse(cmd[2]) + "。\n此QQ将可以以您的身份领取相关福利。如果这不是你的QQ，请立即联系管理换绑！\n" +
                                                     "如需帮助，请联系鸡蛋(QQ1250542735)");
+                                }
+                                break;
+                            case "#验码":
+                                {
+                                    long qquin; int code;
+                                    if (!long.TryParse(cmd[2], out qquin))
+                                    {
+                                        log.Error("Wrong format for QQ uin.");
+                                        await ReplyMsg("指定的QQ号格式不正确");
+                                        break;
+                                    }
+                                    if (!int.TryParse(cmd[1], out code) || code > 999999 || code < 100000)
+                                    {
+                                        log.Error("Wrong format for code.");
+                                        await ReplyMsg("指定的验证码格式不正确");
+                                        break;
+                                    }
+                                    var uid = DataBase.me.getUidByAuthcode(code);
+                                    if (uid > 0)
+                                    {
+                                        DataBase.me.boundBiliWithQQ(uid, qquin);
+                                        var profile = (await session.GetUserProfileAsync(qquin));
+                                        if (profile.Level < 16)
+                                        {
+                                            await ReplyMsg("目标用户QQ等级不足16。应提醒添加鹿野好友，拒绝进群。\n验码结束，对应验证码已经失效");
+                                        }
+                                        else if (DataBase.me.isUserBlacklisted(qquin))
+                                        {
+                                            await ReplyMsg("黑名单QQ，应当拒绝进群。\n验码结束，对应验证码已经失效");
+                                        }
+                                        else
+                                        {
+                                            await ReplyMsg($"核验通过，绑定信息：\nB站UID：{uid}\nQQ号：{qquin}\n请通过群申请。\n\n验码结束，对应验证码已经失效");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        await ReplyMsg($"核验失败：验证码信息不可查。请进行人工核查。\n建议人工核查程序：\n1.要求用户提供其UID\n2.在此处执行指令：\"#验证码 对方提供的UID\"\n3.要求对方提供B站私信接收的验证码，核对是否正确\n4.运行指令\"#QQ绑UID QQ号 B站UID\"将上述信息绑定\n5.同意加群");
+                                    }
                                 }
                                 break;
                             case "#setcrew":

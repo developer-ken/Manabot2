@@ -116,13 +116,13 @@ namespace Manabot2.EventHandlers
                 else
                 {
                     log.Info("Wrong code (" + code + "), Wait for manual approval.");
-                    await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ + "\n加群申请需要人工核对：提供的验证码不可查"));
+                    await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ + "\n加群申请需要人工核对：提供的验证码不可查\n建议人工核查程序：\n1.要求用户提供其UID\n2.在此处执行指令：\"#验证码 对方提供的UID\"\n3.要求对方提供B站私信接收的验证码，核对是否正确\n4.运行指令\"#QQ绑UID QQ号 B站UID\"将上述信息绑定\n5.同意加群"));
                 }
             }
             else
             {
                 log.Info("Wait for manual approval.");
-                await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ + "\n加群申请需要人工核对：未提供验证码"));
+                await session.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage(e.FromQQ + "\n加群申请需要人工核对：未提供验证码\n建议人工核查程序：\n1.要求用户提供其UID\n2.在此处执行指令：\"#验证码 对方提供的UID\"\n3.要求对方提供B站私信接收的验证码，核对是否正确\n4.运行指令\"#QQ绑UID QQ号 B站UID\"将上述信息绑定\n5.同意加群"));
             }
         }
     }
