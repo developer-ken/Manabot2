@@ -1,7 +1,7 @@
 ﻿using BiliApi;
 using BiliApi.BiliPrivMessage;
 using BiliveDanmakuAgent;
-using BiliveDanmakuAgent.Core;
+using BiliveDanmakuAgent.Model;
 using log4net;
 using Manabot2.Mysql;
 using Mirai.CSharp.HttpApi.Models.ChatMessages;
@@ -19,7 +19,7 @@ namespace Manabot2.EventHandlers
     internal class BiliDanmakuHandler
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(BiliDanmakuHandler));
-        private LiveRoom lr;
+        private DanmakuApi lr;
         private BiliLiveRoom blr;
         private Random rand = new Random();
         public int lid { get; private set; }
@@ -30,15 +30,16 @@ namespace Manabot2.EventHandlers
             {
                 str += c.Name + "=" + c.Value + ";";
             }
-            lr = new LiveRoom(liveid, str);
-            lr.sm.ReceivedDanmaku += Sm_ReceivedDanmaku;
-            lr.sm.StreamStarted += Sm_StreamStarted;
-
-            lr.init_connection();
+            lr = new DanmakuApi(liveid, str);
+            //lr.sm.ReceivedDanmaku += Sm_ReceivedDanmaku;
+            //lr.sm.StreamStarted += Sm_StreamStarted;
+            lr.ConnectAsync().Wait();
+            lr.DanmakuMsgReceivedEvent += Sm_ReceivedDanmaku;
+            lr.LiveStartEvent += Sm_StreamStarted;
             blr = new BiliLiveRoom(liveid, session);
         }
 
-        private void Sm_StreamStarted(object sender, BiliveDanmakuAgent.Core.StreamStartedArgs e)
+        private void Sm_StreamStarted(object sender, BiliveDanmakuAgent.Model.RoomEventArgs e)
         {
             GlobalVar.IsLive = true;
             if (GlobalVar.LevelLowQQs.Count > 0)
@@ -55,11 +56,11 @@ namespace Manabot2.EventHandlers
             }
         }
 
-        private void Sm_ReceivedDanmaku(object sender, BiliveDanmakuAgent.Core.ReceivedDanmakuArgs e)
+        private void Sm_ReceivedDanmaku(object sender, BiliveDanmakuAgent.Model.DanmakuReceivedEventArgs e)
         {
             switch (e.Danmaku.MsgType)
             {
-                case MsgTypeEnum.LiveEnd:
+                case DanmakuMsgType.LiveEnd:
                     {
                         GlobalVar.IsLive = false;
                         if (GlobalVar.LevelLowQQs.Count > 0)
@@ -76,7 +77,7 @@ namespace Manabot2.EventHandlers
                         }
                     }
                     break;
-                case MsgTypeEnum.GuardBuy:
+                case DanmakuMsgType.GuardBuy:
                     string dpword = "??未知??";
                     switch (e.Danmaku.UserGuardLevel)
                     {

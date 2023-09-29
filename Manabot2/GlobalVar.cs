@@ -20,7 +20,7 @@ namespace Manabot2
         public static IMiraiHttpSession qqsession;
         public static BiliSession bilisession;
         public static BiliLiveRoom bliveroom;
-        public static LiveRoom liveroom;
+        public static DanmakuApi liveroom;
         public static BiliDanmakuHandler danmakuhan;
         public static SqlDbConfig dbcfg;
         public static List<Task> BackgroundTasks = new List<Task>();
