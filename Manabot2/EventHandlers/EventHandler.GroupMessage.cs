@@ -24,7 +24,7 @@ namespace Manabot2.EventHandlers
         {
             try
             {
-                var session = GlobalVar.qqsession;
+                var session = Global.qqsession;
                 foreach (IChatMessage msg in e.Chain)
                 {
                     if (msg is not UnknownChatMessage)//不处理UnknownChatMessage

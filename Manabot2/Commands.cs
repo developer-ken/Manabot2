@@ -64,7 +64,7 @@ namespace Manabot2
                     log.Info("OP[" + e.Sender.Id + "] " + clearstr);
                     async Task ReplyMsg(string text)
                     {
-                        await GlobalVar.qqsession.SendGroupMessageAsync(e.Sender.Group.Id, new AtMessage(e.Sender.Id),
+                        await Global.qqsession.SendGroupMessageAsync(e.Sender.Group.Id, new AtMessage(e.Sender.Id),
                                             new PlainMessage(text));
                     }
                     try
@@ -87,7 +87,7 @@ namespace Manabot2
                                         string name = "";
                                         try
                                         {
-                                            var profile = GlobalVar.qqsession.GetUserProfileAsync(qquin).Result;
+                                            var profile = Global.qqsession.GetUserProfileAsync(qquin).Result;
                                             name = "<" + profile.Nickname + ">";
                                         }
                                         catch
@@ -119,7 +119,7 @@ namespace Manabot2
                                         string name = "";
                                         try
                                         {
-                                            var profile = GlobalVar.qqsession.GetUserProfileAsync(qquin).Result;
+                                            var profile = Global.qqsession.GetUserProfileAsync(qquin).Result;
                                             name = "<" + profile.Nickname + ">";
                                         }
                                         catch
@@ -138,7 +138,7 @@ namespace Manabot2
                             case "#验证码":
                                 {
                                     long uidd = long.Parse(cmd[1]);
-                                    var bs = PrivMessageSession.openSessionWith(uidd, GlobalVar.bilisession);
+                                    var bs = PrivMessageSession.openSessionWith(uidd, Global.bilisession);
                                     var code = rand.Next(100000, 999999);
                                     await ReplyMsg("[验证码]\n管理员发起验证，正确的验证码为：" + code + "\n此验证码已被发送至<UID:" + uidd + ">的B站私信，询问其验证码并与此正确代码核对。");
                                     bs.sendMessage("[验证码]\n验证码：" + code + "\n此次验证由<" + e.Sender.Name + ">发起。如果您不在与此管理组成员沟通，请不要向对方提供验证码。");
@@ -166,11 +166,11 @@ namespace Manabot2
                                         DataBase.me.setCrewAuthCode(biliuid, 12345);          //Workaround.
                                         result = DataBase.me.boundBiliWithQQ(biliuid, qquin);
                                     }
-                                    var buser = BiliApi.BiliUser.getUser(biliuid, GlobalVar.bilisession);
-                                    var quser = GlobalVar.qqsession.GetUserProfileAsync(qquin).Result;
+                                    var buser = BiliApi.BiliUser.getUser(biliuid, Global.bilisession);
+                                    var quser = Global.qqsession.GetUserProfileAsync(qquin).Result;
 
                                     await ReplyMsg("[手动QQ绑定]\n" + "Bili:" + buser.name + "\nQName:" + quser.Nickname + "\n" + (result ? "已建立绑定" : "无法绑定"));
-                                    var bs = PrivMessageSession.openSessionWith(biliuid, GlobalVar.bilisession);
+                                    var bs = PrivMessageSession.openSessionWith(biliuid, Global.bilisession);
                                     bs.sendMessage("[自动回复] 管理员已将您当前账号绑定到QQ:" + long.Parse(cmd[2]) + "。\n此QQ将可以以您的身份领取相关福利。如果这不是你的QQ，请立即联系管理换绑！\n" +
                                                     "如需帮助，请联系鸡蛋(QQ1250542735)");
                                 }

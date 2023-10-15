@@ -11,7 +11,7 @@ using static Manabot2.Mysql.ConnectionPool;
 
 namespace Manabot2
 {
-    internal static class GlobalVar
+    internal static class Global
     {
         public static string Server = String.Empty, Key = String.Empty;
         public static long MyQQ, StreammerUID, LiveroomId, LogGroup;
@@ -26,5 +26,10 @@ namespace Manabot2
         public static List<Task> BackgroundTasks = new List<Task>();
         public static List<long> LevelLowQQs = new List<long>();
         public static bool IsLive = false;
+
+        public static int GetUnixTimestamp(DateTime time)
+        {
+            return (int)(time.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+        }
     }
 }

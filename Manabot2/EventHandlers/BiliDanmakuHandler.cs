@@ -36,24 +36,43 @@ namespace Manabot2.EventHandlers
             lr.ConnectAsync().Wait();
             lr.DanmakuMsgReceivedEvent += Sm_ReceivedDanmaku;
             lr.LiveStartEvent += Sm_StreamStarted;
+            lr.LiveEndEvent += Sm_StreamStopped;
             blr = new BiliLiveRoom(liveid, session);
         }
 
         private void Sm_StreamStarted(object sender, BiliveDanmakuAgent.Model.RoomEventArgs e)
         {
-            GlobalVar.IsLive = true;
-            if (GlobalVar.LevelLowQQs.Count > 0)
+            Global.IsLive = true;
+            if (lid <= 0)
+            {
+                lid = Global.GetUnixTimestamp(DateTime.Now);
+                DataBase.me.recBLive(lid, e.RoomInfo.Title);
+                Global.qqsession.SendGroupMessageAsync(Global.LogGroup, new PlainMessage($"[直播开始#{lid}]\n{e.RoomInfo.Title}"));
+            }
+            else
+            {
+                Global.qqsession.SendGroupMessageAsync(Global.LogGroup, new PlainMessage($"[直播恢复#{lid}]\n{{主播->B站}}直播推流可能不稳定。"));
+            }
+            if (Global.LevelLowQQs.Count > 0)
             {
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine("[自动消息]");
                 sb.AppendLine("有以下舰长QQ号等级不足16，需要添加好友：");
-                foreach (var qn in GlobalVar.LevelLowQQs)
+                foreach (var qn in Global.LevelLowQQs)
                 {
                     sb.AppendLine(qn.ToString());
                 }
-                GlobalVar.LevelLowQQs.Clear();
-                GlobalVar.qqsession.SendFriendMessageAsync(GlobalVar.Streammer, new PlainMessage(sb.ToString()));
+                Global.LevelLowQQs.Clear();
+                Global.qqsession.SendFriendMessageAsync(Global.Streammer, new PlainMessage(sb.ToString()));
             }
+        }
+
+        private void Sm_StreamStopped(object sender, BiliveDanmakuAgent.Model.RoomEventArgs e)
+        {
+            Global.IsLive = false;
+            DataBase.me.recBLiveEnd(lid, -1, -1, -1, -1, -1);
+            Global.qqsession.SendGroupMessageAsync(Global.LogGroup, new PlainMessage($"[直播结束#{lid}]\n根据系统策略，不允许记录收益和粉丝数据"));
+            lid = -1;
         }
 
         private void Sm_ReceivedDanmaku(object sender, BiliveDanmakuAgent.Model.DanmakuReceivedEventArgs e)
@@ -62,18 +81,18 @@ namespace Manabot2.EventHandlers
             {
                 case DanmakuMsgType.LiveEnd:
                     {
-                        GlobalVar.IsLive = false;
-                        if (GlobalVar.LevelLowQQs.Count > 0)
+                        Global.IsLive = false;
+                        if (Global.LevelLowQQs.Count > 0)
                         {
                             StringBuilder sb = new StringBuilder();
                             sb.AppendLine("[自动消息]");
                             sb.AppendLine("有以下舰长QQ号等级不足16，需要添加好友：");
-                            foreach (var qn in GlobalVar.LevelLowQQs)
+                            foreach (var qn in Global.LevelLowQQs)
                             {
                                 sb.AppendLine(qn.ToString());
                             }
-                            GlobalVar.LevelLowQQs.Clear();
-                            GlobalVar.qqsession.SendFriendMessageAsync(GlobalVar.Streammer, new PlainMessage(sb.ToString()));
+                            Global.LevelLowQQs.Clear();
+                            Global.qqsession.SendFriendMessageAsync(Global.Streammer, new PlainMessage(sb.ToString()));
                         }
                     }
                     break;
@@ -147,25 +166,25 @@ namespace Manabot2.EventHandlers
                 if (a >= 5)
                 {
                     log.Error("Failed to save AuthCode to database after 5 (re)tries.");
-                    PrivMessageSession session1 = PrivMessageSession.openSessionWith(userid, GlobalVar.bilisession);
-                    session1.sendMessage("感谢您加入鹿野灸的大航海！\nAuthCode(#" + authcode + ")\nDB_CONNECTION_FALIURE\n请与舰长群技术负责人鸡蛋(QQ:1250542735)取得联系并提供本页面截图，他将帮助您登记信息、加入舰长群。");
+                    PrivMessageSession session1 = PrivMessageSession.openSessionWith(userid, Global.bilisession);
+                    session1.sendMessage("感谢您加入鹿野灸的大航海！\nAuthCode(#" + authcode + ")\nDB_CONNECTION_FALIURE\n请与舰长群技术负责人鸡蛋(QQ:1250542735)取得联系并提供本页面截图，他将帮助您登记信息、加入舰长群。\n\n由于B站防打扰策略，请关注我或回复本条消息，以便接收后续通知！");
                     session1.Close();
 
                     log.Info("Bili UID:" + userid);
                     log.Info("Use code:" + authcode);
                     log.Warn("ATTENTION! Additional manual operation required.");
-                    GlobalVar.qqsession.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage("#" + userid + "\n新上舰，正确的验证码为：" + authcode + "\n ### 中央数据库断开，请人工核对入群申请 ###"));
+                    Global.qqsession.SendGroupMessageAsync(Global.LogGroup, new PlainMessage("#" + userid + "\n新上舰，正确的验证码为：" + authcode + "\n ### 中央数据库断开，请人工核对入群申请 ###"));
                     return;
                 }
             }
 
             log.Debug("Send priv message...");
-            PrivMessageSession session = PrivMessageSession.openSessionWith(userid, GlobalVar.bilisession);
-            session.sendMessage("感谢您加入鹿野灸的大航海！\n舰长QQ群号：781858343\n加群验证码：" + authcode + "\n加群时，请使用上面的6位验证码作为验证问题的答案。\n验证码使用后即刻失效，请勿外传。");
+            PrivMessageSession session = PrivMessageSession.openSessionWith(userid, Global.bilisession);
+            session.sendMessage("感谢您加入鹿野灸的大航海！\n舰长QQ群号：781858343\n加群验证码：" + authcode + "\n加群时，请使用上面的6位验证码作为验证问题的答案。\n验证码使用后即刻失效，请勿外传。\n\n由于B站防打扰策略，请关注我或回复本条消息，以便接收后续通知！");
             session.Close();
             log.Info("Bili UID:" + userid);
             log.Info("Use code:" + authcode);
-            GlobalVar.qqsession.SendGroupMessageAsync(GlobalVar.LogGroup, new PlainMessage("#" + userid + "\n新上舰，已发送验证码"));
+            Global.qqsession.SendGroupMessageAsync(Global.LogGroup, new PlainMessage("#" + userid + "\n新上舰，已发送验证码"));
         }
     }
 }

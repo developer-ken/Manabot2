@@ -36,7 +36,7 @@ namespace Manabot2
         {
             using (var ms = new MemoryStream(Url2PNGByte(url)))
             {
-                return (IImageMessage)GlobalVar.qqsession.UploadPictureAsync(UploadTarget.Group, ms).Result;
+                return (IImageMessage)Global.qqsession.UploadPictureAsync(UploadTarget.Group, ms).Result;
             }
         }
     }

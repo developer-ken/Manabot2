@@ -54,22 +54,22 @@ namespace Manabot2
                 StreamReader cfile = new StreamReader("botconfig.json");
                 JObject config = (JObject)JsonConvert.DeserializeObject(cfile.ReadToEnd());
                 cfile.Close();
-                GlobalVar.Server = config["mirai"].Value<string>("server");
-                GlobalVar.Key = config["mirai"].Value<string>("key");
-                GlobalVar.MyQQ = config["mirai"].Value<long>("user");
+                Global.Server = config["mirai"].Value<string>("server");
+                Global.Key = config["mirai"].Value<string>("key");
+                Global.MyQQ = config["mirai"].Value<long>("user");
                 try
                 {
-                    GlobalVar.Port = config["mirai"].Value<int>("port");
+                    Global.Port = config["mirai"].Value<int>("port");
                 }
                 catch
                 {
-                    GlobalVar.Port = 8080;
+                    Global.Port = 8080;
                 }
-                GlobalVar.LiveroomId = config["bili"].Value<long>("roomid");
-                GlobalVar.StreammerUID = config["bili"].Value<long>("streammer");
-                GlobalVar.LogGroup = config.Value<long>("logGroup");
+                Global.LiveroomId = config["bili"].Value<long>("roomid");
+                Global.StreammerUID = config["bili"].Value<long>("streammer");
+                Global.LogGroup = config.Value<long>("logGroup");
 
-                GlobalVar.dbcfg = new ConnectionPool.SqlDbConfig
+                Global.dbcfg = new ConnectionPool.SqlDbConfig
                 {
                     ServerAddress = config["sql"].Value<string>("server"),
                     ServerPort = config["sql"]["port"] is null ? 3306 : config["sql"].Value<int>("port"),
@@ -88,7 +88,7 @@ namespace Manabot2
             #region 连接数据库
             try
             {
-                ConnectionPool dbpool = new ConnectionPool(GlobalVar.dbcfg, 10);
+                ConnectionPool dbpool = new ConnectionPool(Global.dbcfg, 10);
                 if (!dbpool.Connection.connected)
                 {
                     log.Error("Failed to connect to database server.");
@@ -121,9 +121,9 @@ namespace Manabot2
                                            // 然后在每一个作用域中!先!配置好 IOptionsSnapshot<MiraiHttpSessionOptions>, 再尝试获取 IMiraiHttpSession
                                            .Configure<MiraiHttpSessionOptions>(options =>
                                            {
-                                               options.Host = GlobalVar.Server;
-                                               options.Port = GlobalVar.Port; // 端口
-                                               options.AuthKey = GlobalVar.Key; // 凭据
+                                               options.Host = Global.Server;
+                                               options.Port = Global.Port; // 端口
+                                               options.AuthKey = Global.Key; // 凭据
                                            })
                                            .AddLogging()
                                            .BuildServiceProvider();
@@ -131,9 +131,9 @@ namespace Manabot2
                 services = scope.ServiceProvider;
                 IMiraiHttpSession session = services.GetRequiredService<IMiraiHttpSession>(); // 大部分服务都基于接口注册, 请使用接口作为类型解析
                 log.Info("Connecting...");
-                session.ConnectAsync(GlobalVar.MyQQ).Wait(); // 填入期望连接到的机器人QQ号
-                log.Info("Mirai connected to: " + GlobalVar.MyQQ);
-                GlobalVar.qqsession = session;
+                session.ConnectAsync(Global.MyQQ).Wait(); // 填入期望连接到的机器人QQ号
+                log.Info("Mirai connected to: " + Global.MyQQ);
+                Global.qqsession = session;
             }
             catch (Exception ex)
             {
@@ -153,7 +153,7 @@ namespace Manabot2
                         var bililogin = new QRLogin(File.ReadAllText("biliaccount.secrets.json"));
                         if (bililogin.LoggedIn)
                         {
-                            GlobalVar.bilisession = new BiliApi.BiliSession(bililogin.Cookies);
+                            Global.bilisession = new BiliApi.BiliSession(bililogin.Cookies);
                             log.Info("Bili login success.");
                             break;
                         }
@@ -165,14 +165,14 @@ namespace Manabot2
                     var blogin = new QRLogin();
                     var qrmsg = QRGen.Url2ImageMessage(blogin.QRToken.ScanUrl);
                     var txtqr = QRGen.Url2BitString(blogin.QRToken.ScanUrl);
-                    GlobalVar.qqsession.SendGroupMessageAsync(GlobalVar.LogGroup, new IChatMessage[] {
+                    Global.qqsession.SendGroupMessageAsync(Global.LogGroup, new IChatMessage[] {
                             qrmsg,
                             new PlainMessage("Token="+blogin.QRToken.OAuthKey+"\n请使用Bilibili客户端扫码登录")
                             });
                     log.Warn("Scan the QR code below:");
                     Console.WriteLine(txtqr + "\n");
                     var token = blogin.Login();
-                    GlobalVar.bilisession = new BiliApi.BiliSession(token);
+                    Global.bilisession = new BiliApi.BiliSession(token);
                     log.Info("Bili login success.");
                     log.Info("Token saved to biliaccount.secrets.json.");
                     log.Info("DO NOT SHARE THAT FILE");
@@ -191,7 +191,7 @@ namespace Manabot2
             try
             {
                 //TODO: 重构底层，支持long长度的LiveroonId
-                GlobalVar.danmakuhan = new EventHandlers.BiliDanmakuHandler(GlobalVar.bilisession, (int)GlobalVar.LiveroomId);
+                Global.danmakuhan = new EventHandlers.BiliDanmakuHandler(Global.bilisession, (int)Global.LiveroomId);
             }
             catch (Exception ex)
             {
@@ -215,7 +215,7 @@ namespace Manabot2
             {
                 try
                 {
-                    Task.WaitAny(GlobalVar.BackgroundTasks.ToArray());
+                    Task.WaitAny(Global.BackgroundTasks.ToArray());
                 }
                 catch (Exception ex)
                 {
@@ -227,18 +227,18 @@ namespace Manabot2
 
         private static void Timer_sendlowlevelqqmsg_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
         {
-            if ((!GlobalVar.IsLive) && (!(DateTime.Now.Hour > 23 || DateTime.Now.Hour < 8)))
-                if (GlobalVar.LevelLowQQs.Count > 0)
+            if ((!Global.IsLive) && (!(DateTime.Now.Hour > 23 || DateTime.Now.Hour < 8)))
+                if (Global.LevelLowQQs.Count > 0)
                 {
                     StringBuilder sb = new StringBuilder();
                     sb.AppendLine("[自动消息]");
                     sb.AppendLine("有以下舰长等级不足16，需要添加好友：");
-                    foreach (var qn in GlobalVar.LevelLowQQs)
+                    foreach (var qn in Global.LevelLowQQs)
                     {
                         sb.AppendLine(qn.ToString());
                     }
-                    GlobalVar.LevelLowQQs.Clear();
-                    GlobalVar.qqsession.SendFriendMessageAsync(GlobalVar.Streammer, new PlainMessage(sb.ToString()));
+                    Global.LevelLowQQs.Clear();
+                    Global.qqsession.SendFriendMessageAsync(Global.Streammer, new PlainMessage(sb.ToString()));
                 }
         }
     }
