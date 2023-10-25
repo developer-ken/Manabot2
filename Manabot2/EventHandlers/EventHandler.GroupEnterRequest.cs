@@ -9,8 +9,7 @@ using log4net;
 using System.Text.RegularExpressions;
 using BiliApi.BiliPrivMessage;
 using Mirai.CSharp.HttpApi.Models.ChatMessages;
-using System.Text;
-using Mirai.CSharp.HttpApi.Models;
+using BiliApi;
 
 namespace Manabot2.EventHandlers
 {
@@ -37,7 +36,7 @@ namespace Manabot2.EventHandlers
             {
                 var uid = DataBase.me.getUserBoundedUID(e.FromQQ);
                 var profile = (await session.GetUserProfileAsync(e.FromQQ));
-                if (DataBase.me.isBiliUserGuard(uid))
+                if (DataBase.me.isBiliUserGuard(uid) || IsCurrentlyCrew(uid))
                     if (profile.Level < 16)
                     {
                         log.Info(e.FromQQ + " already registered.");
@@ -47,7 +46,6 @@ namespace Manabot2.EventHandlers
                     }
                     else
                     {
-
                         log.Info(e.FromQQ + " already registered. Allow.");
                         await session.HandleGroupApplyAsync(e, GroupApplyActions.Allow);
                         await session.SendGroupMessageAsync(Global.LogGroup, new PlainMessage(e.FromQQ + "\n通过加群申请：已知QQ"));
@@ -67,7 +65,7 @@ namespace Manabot2.EventHandlers
                 }
                 if (code > 999999)
                 {
-                    if (DataBase.me.isBiliUserGuard(code))
+                    if (DataBase.me.isBiliUserGuard(code) || IsCurrentlyCrew(code))
                     {
                         Global.danmakuhan.SendCrewCode(code);
                         log.Info("Sent new code to " + code);
@@ -80,7 +78,7 @@ namespace Manabot2.EventHandlers
                     }
                 }
                 var uid = DataBase.me.getUidByAuthcode(code);
-                if (DataBase.me.isBiliUserGuard(uid))
+                if (DataBase.me.isBiliUserGuard(uid) || IsCurrentlyCrew(uid))
                     if (uid > 0)
                     {
                         DataBase.me.boundBiliWithQQ(uid, e.FromQQ);
@@ -161,6 +159,17 @@ namespace Manabot2.EventHandlers
                 log.Info("Wait for manual approval.");
                 await session.SendGroupMessageAsync(Global.LogGroup, new PlainMessage(e.FromQQ + "\n加群申请需要人工核对：未提供验证码\n建议人工核查程序：\n1.要求用户提供其UID\n2.在此处执行指令：\"#验证码 对方提供的UID\"\n3.要求对方提供B站私信接收的验证码，核对是否正确\n4.运行指令\"#QQ绑UID QQ号 B站UID\"将上述信息绑定\n5.同意加群"));
             }
+        }
+
+        private static bool IsCurrentlyCrew(long uid)
+        {
+            var medals = BiliUser.getMedals(Global.bilisession, uid);
+            foreach (var medal in medals)
+            {
+                if (medal.TargetId == Global.StreammerUID)
+                    return medal.GuardLevel > 0;
+            }
+            return false;
         }
     }
 }
