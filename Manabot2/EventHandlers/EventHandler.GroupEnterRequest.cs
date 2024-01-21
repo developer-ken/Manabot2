@@ -167,7 +167,7 @@ namespace Manabot2.EventHandlers
             foreach (var medal in medals)
             {
                 if (medal.TargetId == Global.StreammerUID)
-                    return medal.GuardLevel > 0;
+                    return medal.GuardLevel > 0 || medal.Level >= 21;
             }
             return false;
         }
