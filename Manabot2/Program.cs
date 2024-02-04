@@ -3,6 +3,7 @@ using BiliApi.Auth;
 using BiliveDanmakuAgent;
 using log4net;
 using log4net.Config;
+using Manabot2.EventHandlers;
 using Manabot2.Mysql;
 using Microsoft.Extensions.DependencyInjection;
 using Mirai.CSharp.Builders;
@@ -204,6 +205,9 @@ namespace Manabot2
             timer_sendlowlevelqqmsg.AutoReset = true;
             timer_sendlowlevelqqmsg.Elapsed += Timer_sendlowlevelqqmsg_Elapsed;
             timer_sendlowlevelqqmsg.Enabled = true;
+
+            Global.privhan = new EventHandlers.BiliPrivHandler(Global.bilisession);
+            Global.privhan.Start();
 
             var seconds = (DateTime.Now - start).TotalSeconds;
             log.Info("Done! System loaded in " + seconds + "s.");

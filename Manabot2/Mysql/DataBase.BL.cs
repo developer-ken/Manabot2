@@ -234,6 +234,80 @@ namespace Manabot2.Mysql
             }
         }
 
+        public int getAuthcodeByUid(long uid)
+        {
+            Dictionary<string, object> args = new Dictionary<string, object>
+            {
+                { "@uid", uid}
+            };
+            List<int> vs = new List<int>
+            {
+                1
+            };
+            List<List<string>> re = querysql("SELECT * from bili_qqbound where uid like @uid and qq is not null and type = 10;", args, vs);
+            int group = 0;
+            foreach (List<string> line in re)
+            {
+                int gpn = int.Parse(line[0]);
+                group = gpn;
+            }
+            return group;
+        }
+
+        public string getClaimedActivationCode(long uid)
+        {
+            try
+            {
+                Dictionary<string, object> args = new Dictionary<string, object>
+                {
+                    { "@claimer", uid}
+                };
+                List<int> vs = new List<int>
+                {
+                    1
+                };
+                List<List<string>> re = querysql("SELECT * from activation_codes where claimer like @claimer;", args, vs);
+                string group = null;
+                foreach (List<string> line in re)
+                {
+                    string gpn = line[0];
+                    group = gpn;
+                }
+                return group;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public string claimActivationCode(long uid)
+        {
+            try
+            {
+                Dictionary<string, object> args = new Dictionary<string, object>
+                {
+                    { "@claimer", uid}
+                };
+                List<int> vs = new List<int>
+                {
+                    1
+                };
+                List<List<string>> re = querysql("START TRANSACTION;\r\nSELECT @id:=id, @code:=code FROM activation_codes WHERE claimer = 0 LIMIT 1;\r\nUPDATE activation_codes SET claimer = @claimer WHERE id = @id;\r\nCOMMIT;", args, vs);
+                string group = null;
+                foreach (List<string> line in re)
+                {
+                    string gpn = line[0];
+                    group = gpn;
+                }
+                return group;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public bool removeUserBlklist(long q)
         {
             Dictionary<string, object> args = new Dictionary<string, object>

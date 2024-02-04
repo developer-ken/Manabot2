@@ -43,7 +43,7 @@ namespace Manabot2.EventHandlers
                 var uid = DataBase.me.getUserBoundedUID(e.FromQQ);
                 var profile = (await session.GetUserProfileAsync(e.FromQQ));
                 //对应UID是舰长？
-                if (DataBase.me.isBiliUserGuard(uid) || IsCurrentlyCrew(uid))
+                if (DataBase.me.isBiliUserGuard(uid) || IsCrew(uid))
                     //QQ等级足够？
                     if (profile.Level < 16)
                     {
@@ -97,7 +97,7 @@ namespace Manabot2.EventHandlers
                             ));
                     }
                     else
-                    if (DataBase.me.isBiliUserGuard(code) || IsCurrentlyCrew(code))
+                    if (DataBase.me.isBiliUserGuard(code) || IsCrew(code))
                     {
                         Global.danmakuhan.SendCrewCode(code);
                         log.Info("Sent new code to " + code);
@@ -116,7 +116,7 @@ namespace Manabot2.EventHandlers
                     return;
                 }
                 var uid = DataBase.me.getUidByAuthcode(code);
-                if (DataBase.me.isBiliUserGuard(uid) || IsCurrentlyCrew(uid))
+                if (DataBase.me.isBiliUserGuard(uid) || IsCrew(uid))
                     if (uid > 0)
                     {
                         DataBase.me.boundBiliWithQQ(uid, e.FromQQ);
@@ -221,13 +221,34 @@ namespace Manabot2.EventHandlers
                    "牌子:" + (medal is null ? "<无信息>" : (medal.Level + "," + medal.GuardLevel + (medal.GuardLevel > 0 ? ",<在舰>" : "")))));
         }
 
-        public static bool IsCurrentlyCrew(long uid)
+        /// <summary>
+        /// 牌子>21就算舰长
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        public static bool IsCrew(long uid)
         {
             var medals = BiliUser.getMedals(Global.bilisession, uid, false);
             foreach (var medal in medals)
             {
                 if (medal.TargetId == Global.StreammerUID)
                     return medal.GuardLevel > 0 || medal.Level >= 21;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 现在是舰长？（过期的不算）
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        public static bool IsCurrentlyCrew(long uid)
+        {
+            var medals = BiliUser.getMedals(Global.bilisession, uid, false);
+            foreach (var medal in medals)
+            {
+                if (medal.TargetId == Global.StreammerUID)
+                    return medal.GuardLevel > 0;
             }
             return false;
         }
