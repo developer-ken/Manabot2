@@ -225,6 +225,7 @@ namespace Manabot2
                 {
                     log.Error("Exception in background task", ex);
                 }
+                Thread.Sleep(0);
             }
             #endregion
         }
