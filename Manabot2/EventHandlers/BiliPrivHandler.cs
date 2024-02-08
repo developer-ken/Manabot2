@@ -16,6 +16,7 @@ namespace Manabot2.EventHandlers
         PrivMsgReceiverLite sessmgn;
         BiliSession sess;
         volatile bool run = false;
+        static DateTime claimCodeStart = new DateTime(2024, 2, 1, 0, 0, 0);
 
         public BiliPrivHandler(BiliSession session)
         {
@@ -39,17 +40,23 @@ namespace Manabot2.EventHandlers
                         if (ssess.lastmessage.content.Contains("激活码"))
                         {
                             log.Info($"#{ssess.talker_id} requesting activation code.");
-                            if (EventHandler.IsCurrentlyCrew(ssess.talker_id))
+                            //if (EventHandler.IsCurrentlyCrew(ssess.talker_id))
+                            if (DataBase.me.GetLatestCrewRecordTime(ssess.talker_id) > claimCodeStart) //最近一次上舰时间符合要求
                             {
                                 var code = DataBase.me.getClaimedActivationCode(ssess.talker_id);
                                 if (code is null || code.Length == 0)
                                 {
-                                    log.Info($"#{ssess.talker_id} new claim. code={code}");
                                     code = DataBase.me.claimActivationCode(ssess.talker_id);
                                     if (code is null || code.Length == 0)
-                                        ssess.sendMessage($"激活码已经抢完，感谢您的支持！");
+                                    {
+                                        log.Info($"#{ssess.talker_id} new claim FAILED. STOCK_OUT");
+                                        ssess.sendMessage($"激活码已经抢完，请联系管理补货！");
+                                    }
                                     else
+                                    {
+                                        log.Info($"#{ssess.talker_id} new claim. code={code}");
                                         ssess.sendMessage($"感谢您参加本次活动。您的激活码是：\n{code}");
+                                    }
                                 }
                                 else
                                 {
@@ -59,8 +66,8 @@ namespace Manabot2.EventHandlers
                             }
                             else
                             {
-                                log.Info($"#{ssess.talker_id} not crew. refuse.");
-                                ssess.sendMessage("抱歉，只有在舰舰长可以获取激活码。");
+                                log.Info($"#{ssess.talker_id} not crew / wrong time. refuse.");
+                                ssess.sendMessage("抱歉，您在规定时间内无上舰记录，不能领取本期福利。若存在疑问，请联系管理员。");
                             }
                         }
                         if (ssess.lastmessage.content.Contains("验证码"))

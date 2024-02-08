@@ -131,22 +131,30 @@ namespace Manabot2.Mysql
 
         public long getUserBoundedQQ(long uid)
         {
-            Dictionary<string, object> args = new Dictionary<string, object>
+            try
             {
-                { "@uid", uid}
-            };
-            List<int> vs = new List<int>
-            {
-                1
-            };
-            List<List<string>> re = querysql("SELECT * from bili_qqbound where uid like @uid and qq is not null and type <= 5;", args, vs);
-            long group = 0;
-            foreach (List<string> line in re)
-            {
-                long gpn = long.Parse(line[0]);
-                group = gpn;
+                Dictionary<string, object> args = new Dictionary<string, object>
+                {
+                    { "@uid", uid}
+                };
+                List<int> vs = new List<int>
+                {
+                    1
+                };
+                List<List<string>> re = querysql("SELECT * from bili_qqbound where uid like @uid and qq is not null and type <= 5;", args, vs);
+                long group = 0;
+                foreach (List<string> line in re)
+                {
+                    long gpn = long.Parse(line[0]);
+                    group = gpn;
+                }
+                return group;
             }
-            return group;
+            catch (Exception e)
+            {
+                log.Error("Unable to determin user_bounded_qq", e);
+                return -1;
+            }
         }
 
         public bool isUserBoundedUID(long qq)
@@ -305,6 +313,33 @@ namespace Manabot2.Mysql
             catch
             {
                 return null;
+            }
+        }
+
+        public DateTime GetLatestCrewRecordTime(long uid)
+        {
+            try
+            {
+                Dictionary<string, object> args = new Dictionary<string, object>
+                {
+                    { "@uid", uid}
+                };
+                List<int> vs = new List<int>
+                {
+                    3
+                };
+                List<List<string>> re = querysql("SELECT * FROM bili_crew WHERE uid = @uid order by id desc LIMIT 1;", args, vs);
+                DateTime group = default;
+                foreach (List<string> line in re)
+                {
+                    string gpn = line[0];
+                    group = DateTime.Parse(gpn);
+                }
+                return group;
+            }
+            catch
+            {
+                return default;
             }
         }
 

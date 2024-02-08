@@ -143,6 +143,7 @@ namespace Manabot2.EventHandlers
                     {
                         SendCrewCode(e.Danmaku.UserID);
                     }
+
                     break;
             }
         }
@@ -189,7 +190,8 @@ namespace Manabot2.EventHandlers
             }
             log.Debug("Send priv message...");
             PrivMessageSession session = PrivMessageSession.openSessionWith(userid, Global.bilisession);
-            session.sendMessage("感谢您加入鹿野灸的大航海！\n舰长QQ群号：781858343\n加群验证码：" + authcode + "\n加群时，请使用上面的6位验证码作为验证问题的答案。\n验证码使用后即刻失效，请勿外传。\n\n由于B站防打扰策略，请关注我或回复本条消息，以便接收后续通知！");
+            session.sendMessage($"感谢您加入鹿野灸的大航海！\n舰长QQ群号：{Global.CrewGroup}\n加群验证码：{authcode}\n加群时，请使用上面的6位验证码作为验证问题的答案。\n验证码使用后即刻失效，请勿外传。\n\n您有一个待领取的舰长福利，发送\"激活码\"领取。");
+            //session.sendMessage("感谢您加入鹿野灸的大航海！\n舰长QQ群号：781858343\n加群验证码：" + authcode + "\n加群时，请使用上面的6位验证码作为验证问题的答案。\n验证码使用后即刻失效，请勿外传。\n\n由于B站防打扰策略，请关注我或回复本条消息，以便接收后续通知！");
             session.Close();
             log.Info("Bili UID:" + userid);
             log.Info("Use code:" + authcode);
