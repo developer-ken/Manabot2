@@ -75,77 +75,89 @@ namespace Manabot2.EventHandlers
             lid = -1;
         }
 
-        private void Sm_ReceivedDanmaku(object sender, BiliveDanmakuAgent.Model.DanmakuReceivedEventArgs e)
+        private async void Sm_ReceivedDanmaku(object sender, BiliveDanmakuAgent.Model.DanmakuReceivedEventArgs e)
         {
-            switch (e.Danmaku.MsgType)
+            await Task.Run(() =>
             {
-                case DanmakuMsgType.LiveEnd:
+                try
+                {
+                    switch (e.Danmaku.MsgType)
                     {
-                        Global.IsLive = false;
-                        if (Global.LevelLowQQs.Count > 0)
-                        {
-                            StringBuilder sb = new StringBuilder();
-                            sb.AppendLine("[自动消息]");
-                            sb.AppendLine("有以下舰长QQ号等级不足16，需要添加好友：");
-                            foreach (var qn in Global.LevelLowQQs)
+                        case DanmakuMsgType.LiveEnd:
                             {
-                                sb.AppendLine(qn.ToString());
+                                Global.IsLive = false;
+                                if (Global.LevelLowQQs.Count > 0)
+                                {
+                                    StringBuilder sb = new StringBuilder();
+                                    sb.AppendLine("[自动消息]");
+                                    sb.AppendLine("有以下舰长QQ号等级不足16，需要添加好友：");
+                                    foreach (var qn in Global.LevelLowQQs)
+                                    {
+                                        sb.AppendLine(qn.ToString());
+                                    }
+                                    Global.LevelLowQQs.Clear();
+                                    Global.qqsession.SendFriendMessageAsync(Global.Streammer, new PlainMessage(sb.ToString()));
+                                }
                             }
-                            Global.LevelLowQQs.Clear();
-                            Global.qqsession.SendFriendMessageAsync(Global.Streammer, new PlainMessage(sb.ToString()));
-                        }
-                    }
-                    break;
-                case DanmakuMsgType.GuardBuy:
-                    string dpword = "??未知??";
-                    switch (e.Danmaku.UserGuardLevel)
-                    {
-                        case 1:
-                            dpword = "总督";
                             break;
-                        case 2:
-                            dpword = "提督";
+                        case DanmakuMsgType.GuardBuy:
+                            string dpword = "??未知??";
+                            switch (e.Danmaku.UserGuardLevel)
+                            {
+                                case 1:
+                                    dpword = "总督";
+                                    break;
+                                case 2:
+                                    dpword = "提督";
+                                    break;
+                                case 3:
+                                    dpword = "舰长";
+                                    break;
+                            }
+                            bool isnew = !DataBase.me.isBiliUserGuard(e.Danmaku.UserID);
+                            if (lid > 0)
+                            {
+                                if (isnew)
+                                {
+                                    blr.sendDanmaku("欢迎新" + dpword + "！请留意私信哦~");
+                                }
+                                else
+                                {
+                                    blr.sendDanmaku("感谢<" + e.Danmaku.UserName + ">续航" + dpword + "！");
+                                }
+                            }
+                            else
+                            {
+                                if (isnew)
+                                {
+                                    blr.sendDanmaku("欢迎新 虚空·" + dpword + "！请留意私信哦~");
+                                }
+                                else
+                                {
+                                    blr.sendDanmaku("感谢<" + e.Danmaku.UserName + ">续航 虚空·" + dpword + "！");
+                                }
+                            }
+                            DataBase.me.recUserBuyGuard(e.Danmaku.UserID, e.Danmaku.GiftCount, e.Danmaku.UserGuardLevel, lid);
+
+
+                            var timestamp = TimestampHandler.GetTimeStamp(DateTime.Now);
+
+                            log.Debug("SendCode?");
+                            if (!DataBase.me.isUserBoundedQQOrPending(e.Danmaku.UserID))
+                            {
+                                SendCrewCode(e.Danmaku.UserID);
+                            }
+
                             break;
-                        case 3:
-                            dpword = "舰长";
-                            break;
                     }
-                    bool isnew = !DataBase.me.isBiliUserGuard(e.Danmaku.UserID);
-                    if (lid > 0)
-                    {
-                        if (isnew)
-                        {
-                            blr.sendDanmaku("欢迎新" + dpword + "！请留意私信哦~");
-                        }
-                        else
-                        {
-                            blr.sendDanmaku("感谢<" + e.Danmaku.UserName + ">续航" + dpword + "！");
-                        }
-                    }
-                    else
-                    {
-                        if (isnew)
-                        {
-                            blr.sendDanmaku("欢迎新 虚空·" + dpword + "！请留意私信哦~");
-                        }
-                        else
-                        {
-                            blr.sendDanmaku("感谢<" + e.Danmaku.UserName + ">续航 虚空·" + dpword + "！");
-                        }
-                    }
-                    DataBase.me.recUserBuyGuard(e.Danmaku.UserID, e.Danmaku.GiftCount, e.Danmaku.UserGuardLevel, lid);
-
-
-                    var timestamp = TimestampHandler.GetTimeStamp(DateTime.Now);
-
-                    log.Debug("SendCode?");
-                    if (!DataBase.me.isUserBoundedQQOrPending(e.Danmaku.UserID))
-                    {
-                        SendCrewCode(e.Danmaku.UserID);
-                    }
-
-                    break;
-            }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error happened when processing danmaku.", ex);
+                    log.Error("ContentDump:");
+                    log.Error(e.Danmaku.RawString ?? "_NULL_CONTENT_");
+                }
+            }).ConfigureAwait(false);
         }
 
         public void SendCrewCode(long userid)
@@ -190,7 +202,13 @@ namespace Manabot2.EventHandlers
             }
             log.Debug("Send priv message...");
             PrivMessageSession session = PrivMessageSession.openSessionWith(userid, Global.bilisession);
-            session.sendMessage($"感谢您加入鹿野灸的大航海！\n舰长QQ群号：{Global.CrewGroup}\n加群验证码：{authcode}\n加群时，请使用上面的6位验证码作为验证问题的答案。\n验证码使用后即刻失效，请勿外传。\n\n您有一个待领取的舰长福利，发送\"激活码\"领取。");
+            session.sendMessage($"感谢您加入鹿野灸的大航海！\n" +
+                $"舰长QQ群号：{Global.CrewGroup}\n" +
+                $"加群验证码：{authcode}\n" +
+                $"加群时，请使用上面的6位验证码作为验证问题的答案。\n" +
+                $"请将您的粉丝勋章展示在B站主页，这将加快审核流程。\n" +
+                $"验证码使用后即刻失效，请勿外传。\n\n" +
+                $"如果您无法加群，请联系技术负责人鸡蛋(QQ:1250542735)并提供本页截图。");
             //session.sendMessage("感谢您加入鹿野灸的大航海！\n舰长QQ群号：781858343\n加群验证码：" + authcode + "\n加群时，请使用上面的6位验证码作为验证问题的答案。\n验证码使用后即刻失效，请勿外传。\n\n由于B站防打扰策略，请关注我或回复本条消息，以便接收后续通知！");
             session.Close();
             log.Info("Bili UID:" + userid);
