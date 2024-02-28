@@ -129,6 +129,35 @@ namespace Manabot2.Mysql
             return (count("SELECT COUNT(*) from bili_qqbound where uid like @uid and qq is not null;", args) > 0);
         }
 
+        public bool isSessionExists(long uid, string cid)
+        {
+            Dictionary<string, object> args = new Dictionary<string, object>
+            {
+                { "@uid", uid},
+                { "@cid", cid}
+            };
+            return (count("SELECT COUNT(*) from webapi_auth_state where uid like @uid and cid like @cid;", args) > 0);
+        }
+
+        public void setSession(long uid, string cid)
+        {
+            Dictionary<string, object> args = new Dictionary<string, object>
+            {
+                { "@uid", uid},
+                { "@cid", cid}
+            };
+            execsql("INSERT INTO webapi_auth_state (cid, uid) VALUES (@cid, @uid) ON DUPLICATE KEY UPDATE uid = @uid;", args);
+        }
+
+        public void removeSession(string cid)
+        {
+            Dictionary<string, object> args = new Dictionary<string, object>
+            {
+                { "@cid", cid}
+            };
+            execsql("DELETE FROM webapi_auth_state WHERE cid = @cid;", args);
+        }
+
         public long getUserBoundedQQ(long uid)
         {
             try

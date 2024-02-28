@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -15,6 +15,7 @@
     <PackageReference Include="Mirai-CSharp.HttpApi" Version="2.1.9" />
     <PackageReference Include="MySql.Data" Version="8.0.32.1" />
     <PackageReference Include="QRCoder" Version="1.4.3" />
+    <PackageReference Include="TouchSocket.Http" Version="2.0.0-beta.275" />
   </ItemGroup>
 
   <ItemGroup>
