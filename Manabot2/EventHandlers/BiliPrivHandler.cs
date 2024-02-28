@@ -40,6 +40,7 @@ namespace Manabot2.EventHandlers
                         if (ssess.lastmessage.content.Contains("激活码"))
                         {
                             log.Info($"#{ssess.talker_id} requesting activation code.");
+                            //ssess.sendMessage($"由于高峰期服务器压力大，请在直播结束后领取验证码。给您带来不便，敬请谅解。——来自除夕夜系统崩了的鸡蛋🥚");
                             //if (EventHandler.IsCurrentlyCrew(ssess.talker_id))
                             if (DataBase.me.GetLatestCrewRecordTime(ssess.talker_id) > claimCodeStart) //最近一次上舰时间符合要求
                             {
@@ -67,7 +68,9 @@ namespace Manabot2.EventHandlers
                             else
                             {
                                 log.Info($"#{ssess.talker_id} not crew / wrong time. refuse.");
-                                ssess.sendMessage("抱歉，您在规定时间内无上舰记录，不能领取本期福利。若存在疑问，请联系管理员。");
+                                ssess.sendMessage("我们无法自动核实您的信息。\n" +
+                                    "如果您确信这是一个故障，请联系技术负责人鸡蛋🥚，QQ：1250542735。\n" +
+                                    "请不要担心，我们通过多种方式统计舰队名单。即使您暂时无法被自动确认，人工确认仍然可用。");
                             }
                         }
                         if (ssess.lastmessage.content.Contains("验证码"))
@@ -85,7 +88,12 @@ namespace Manabot2.EventHandlers
                             }
                             else
                             {
-                                ssess.sendMessage("抱歉，目前验证码入群功能仅供鹿野灸舰长使用。");
+                                ssess.sendMessage("抱歉，我们无法自动核实您的舰长身份。\n\n" +
+                                    "怎么办？\n" +
+                                    "· 如果您已经上舰，请将粉丝勋章展示在主页勋章墙上，然后重试。\n" +
+                                    "· 若问题依旧，请联系技术负责人鸡蛋🥚，QQ:1250542735\n" +
+                                    "· 您也可以联系舰长群管理员。" +
+                                    "请不要担心，我们通过多种方式统计舰队名单。即使您暂时无法被自动确认，人工确认仍然可用。");
                             }
                         }
                         {
