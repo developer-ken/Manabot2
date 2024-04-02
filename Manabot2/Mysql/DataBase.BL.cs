@@ -93,6 +93,7 @@ namespace Manabot2.Mysql
             };
             return count("SELECT COUNT(*) from bili_crew where uid like @uid ;", args);
         }
+
         public bool isUserBlacklisted(long user)
         {
             Dictionary<string, object> args = new Dictionary<string, object>
@@ -341,6 +342,44 @@ namespace Manabot2.Mysql
             }
             catch
             {
+                return null;
+            }
+        }
+
+        public bool setUserUUID(long uid, string UUID)
+        {
+            Dictionary<string, object> args = new Dictionary<string, object>
+                {
+                    { "@uid", uid},
+                    { "@code", UUID}
+                };
+            execsql("INSERT INTO webauth_uuid (uuid, uid) VALUES (@code, @uid) ON DUPLICATE KEY UPDATE uuid = @code;", args, out int a);
+            return (a > 0);
+        }
+
+        public string getUserUUIDbyUID(long uid)
+        {
+            try
+            {
+                Dictionary<string, object> args = new Dictionary<string, object>
+                {
+                    { "@uid", uid}
+                };
+                List<int> vs = new List<int>
+                {
+                    0
+                };
+                List<List<string>> re = querysql("SELECT * from webauth_uuid where uid like @uid and uuid is not null;", args, vs);
+                string group = null;
+                foreach (List<string> line in re)
+                {
+                    group = line[0];
+                }
+                return group;
+            }
+            catch (Exception e)
+            {
+                log.Error("Unable to determin user uuid by uid provided", e);
                 return null;
             }
         }
