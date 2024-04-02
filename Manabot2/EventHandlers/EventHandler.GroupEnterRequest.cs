@@ -45,7 +45,7 @@ namespace Manabot2.EventHandlers
                 //对应UID是舰长？
                 if (DataBase.me.isBiliUserGuard(uid) || IsCrew(uid))
                     //QQ等级足够？
-                    if (profile.Level < 16)
+                    if (profile.Level < 16 && e.FromGroup != 781858343)
                     {
                         log.Info(e.FromQQ + " already registered.");
                         log.Info(e.FromQQ + " level low (" + profile.Level + "/16). Deny access.");
@@ -121,7 +121,7 @@ namespace Manabot2.EventHandlers
                     {
                         DataBase.me.boundBiliWithQQ(uid, e.FromQQ);
                         var profile = (await session.GetUserProfileAsync(e.FromQQ));
-                        if (profile.Level < 16)
+                        if (profile.Level < 16 && e.FromGroup != 781858343)
                         {
                             log.Info(e.FromQQ + " -> #" + uid);
                             log.Info(e.FromQQ + " level low (" + profile.Level + "/16). Deny access.");
