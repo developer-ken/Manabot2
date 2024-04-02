@@ -228,6 +228,11 @@ namespace Manabot2.EventHandlers
         /// <returns></returns>
         public static bool IsCrew(long uid)
         {
+            try
+            {
+                if (DataBase.me.isBiliUserGuard(uid)) return true;
+            }
+            catch { };
             var medals = BiliUser.getMedals(Global.bilisession, uid, false);
             foreach (var medal in medals)
             {
