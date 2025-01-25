@@ -172,7 +172,7 @@ namespace Manabot2
                                     await ReplyMsg("[手动QQ绑定]\n" + "Bili:" + buser.name + "\nQName:" + quser.Nickname + "\n" + (result ? "已建立绑定" : "无法绑定"));
                                     var bs = PrivMessageSession.openSessionWith(biliuid, Global.bilisession);
                                     bs.sendMessage("[自动回复] 管理员已将您当前账号绑定到QQ:" + long.Parse(cmd[2]) + "。\n此QQ将可以以您的身份领取相关福利。如果这不是你的QQ，请立即联系管理换绑！\n" +
-                                                    "如需帮助，请联系鸡蛋(QQ1250542735)");
+                                                    "如需帮助，请联系管理员蛋黄(QQ:3584384914)");
                                 }
                                 break;
                             case "#验码":

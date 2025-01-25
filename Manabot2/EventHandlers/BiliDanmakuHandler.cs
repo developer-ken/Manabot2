@@ -195,7 +195,7 @@ namespace Manabot2.EventHandlers
                     {
                         log.Error("Failed to save AuthCode to database after 5 (re)tries.");
                         PrivMessageSession session1 = PrivMessageSession.openSessionWith(userid, Global.bilisession);
-                        session1.sendMessage("感谢您加入鹿野灸的大航海！\nAuthCode(#" + authcode + ")\nDB_CONNECTION_FALIURE\n请与舰长群技术负责人鸡蛋(QQ:1250542735)取得联系并提供本页面截图，他将帮助您登记信息、加入舰长群。\n\n由于B站防打扰策略，请关注我或回复本条消息，以便接收后续通知！");
+                        session1.sendMessage("感谢您加入鹿野灸的大航海！\nAuthCode(#" + authcode + ")\n数据库目前不在线。\n请与舰长群技术负责人鸡蛋(QQ:1250542735)取得联系并提供本页面截图，他将帮助您登记信息、加入舰长群。\n\n由于B站防打扰策略，请关注我或回复本条消息，以便接收后续通知！");
                         session1.Close();
 
                         log.Info("Bili UID:" + userid);
@@ -211,10 +211,12 @@ namespace Manabot2.EventHandlers
             session.sendMessage($"感谢您加入鹿野灸的大航海！\n" +
                 $"舰长QQ群号：{Global.CrewGroup}\n" +
                 $"加群验证码：{authcode}\n" +
-                $"舰长链接：https://fans.luye9.top/{auuid}\n" +
+                $"舰长身份码：{auuid}\n" +
                 $"加群时，请使用上面的6位验证码作为验证问题的答案。\n" +
-                $"舰长链接与您的uid绑定，且不会变化。后续虚拟福利可以通过该链接获取。" +
-                $"如果您无法加群，请联系技术负责人鸡蛋(QQ:1250542735)并提供本页截图。\n\n请关注本账号或回复一条消息，以免B站免打扰系统拦截后续消息。");
+                $"舰长身份码与您的uid绑定，且不会变化。本账号动态中有对应的用法。" +
+                //$"如果您无法加群，请联系技术负责人鸡蛋(QQ:1250542735)并提供本页截图。\n" +
+                $"如果无法加群，您也可以联系管理员蛋黄，QQ：3584384914。" +
+                "\n请关注本账号或回复一条消息，以免B站免打扰系统拦截后续消息。");
             //session.sendMessage("感谢您加入鹿野灸的大航海！\n舰长QQ群号：781858343\n加群验证码：" + authcode + "\n加群时，请使用上面的6位验证码作为验证问题的答案。\n验证码使用后即刻失效，请勿外传。\n\n由于B站防打扰策略，请关注我或回复本条消息，以便接收后续通知！");
             session.Close();
             log.Info("Bili UID:" + userid);

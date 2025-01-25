@@ -1,4 +1,6 @@
 ﻿using BiliApi;
+using BiliApi.Modules;
+using Manabot2.Mysql;
 using Manabot2.WebApi.Module;
 using Newtonsoft.Json.Linq;
 using System;
@@ -25,53 +27,74 @@ namespace Manabot2.WebApi
 
         public async Task OnHttpRequest(IHttpSocketClient client, HttpContextEventArgs e)
         {
-            if (e.Context.Request.RelativeURL.StartsWith("/api/v1"))
+            if (e.Context.Request.RelativeURL.StartsWith("/qqinfo/"))
             {
-                var dpath = e.Context.Request.RelativeURL.Split("/");
-                var api_name = dpath[3];
-                e.Context.Response.ContentType = "application/json";
                 JObject jb = new JObject();
-                var session = AuthenticationHandler.InterpSession(e.Context);
-
-                // 滚码刷新下一个session
-                if(session.IsValid)
-                    AuthenticationHandler.EnsureSessionValid(e.Context, session);
-
-                switch (api_name)
+                try
                 {
-                    case "auth":
-                        {
-                            if (e.Context.Request.Query.ContainsKey("uid") &&
-                                e.Context.Request.Query.ContainsKey("cid"))
-                            {
-                                long uid = long.Parse(e.Context.Request.Query["uid"]);
-                                string cid = e.Context.Request.Query["cid"];
-                                var pubkey = AuthenticationHandler.GenerateToken(uid, cid);
-                                BiliUser buser = new BiliUser(uid);
-                                if (buser.sign.Contains(pubkey))
-                                {
-                                    session = Session.CreateEmptySession(uid);
-                                    AuthenticationHandler.EnsureSessionValid(e.Context, session);
-                                    jb["code"] = 0;
-                                    jb["msg"] = "authentication success";
-                                }
-                                else
-                                {
-                                    jb["code"] = 1;
-                                    jb["msg"] = "Verification code non-exists.";
-                                    jb["pubkey"] = pubkey;
-                                }
-                            }
-                            else
-                            {
-                                jb["code"] = 400;
-                                jb["msg"] = "uid&cid required";
-                            }
-                        }
-                        break;
+                    long qq = long.Parse(e.Context.Request.RelativeURL.Split("/")[2]);
+                    var profile = Global.qqsession.GetUserProfileAsync(qq).Result;
+                    jb.Add("code", 0);
+                    jb.Add("data", JObject.FromObject(profile));
                 }
-
-
+                catch (Exception ex)
+                {
+                    jb.Add("code", 1);
+                    jb.Add("msg", ex.Message);
+                    jb.Add("stack", ex.StackTrace);
+                }
+                e.Context.Response.ContentType = "application/json";
+                e.Context.Response.SetContent(jb.ToString());
+                await e.Context.Response.AnswerAsync();
+            }
+            else
+            if (e.Context.Request.RelativeURL.StartsWith("/medals/"))
+            {
+                JObject jb = new JObject();
+                try
+                {
+                    long uid = long.Parse(e.Context.Request.RelativeURL.Split("/")[2]);
+                    var medals = Global.bilisession.getBiliUserMedal(uid);
+                    jb.Add("code", 0);
+                    jb.Add("data", JObject.Parse(medals));
+                }
+                catch (Exception ex)
+                {
+                    jb.Add("code", 1);
+                    jb.Add("msg", ex.Message);
+                    jb.Add("stack", ex.StackTrace);
+                }
+                e.Context.Response.ContentType = "application/json";
+                e.Context.Response.SetContent(jb.ToString());
+                await e.Context.Response.AnswerAsync();
+            }
+            else
+            if (e.Context.Request.RelativeURL.StartsWith("/isqqincrewgroup/"))
+            {
+                JObject jb = new JObject();
+                try
+                {
+                    long qq = long.Parse(e.Context.Request.RelativeURL.Split("/")[2]);
+                    var members = await Global.qqsession.GetGroupMemberListAsync(Global.CrewGroup);
+                    bool hit = false;
+                    foreach (var member in members)
+                    {
+                        if(member.Id == qq)
+                        {
+                            hit = true;
+                            break;
+                        }
+                    }
+                    jb.Add("code", 0);
+                    jb.Add("hit", hit);
+                }
+                catch (Exception ex)
+                {
+                    jb.Add("code", 1);
+                    jb.Add("msg", ex.Message);
+                    jb.Add("stack", ex.StackTrace);
+                }
+                e.Context.Response.ContentType = "application/json";
                 e.Context.Response.SetContent(jb.ToString());
                 await e.Context.Response.AnswerAsync();
             }

@@ -5,6 +5,7 @@ using log4net;
 using log4net.Config;
 using Manabot2.EventHandlers;
 using Manabot2.Mysql;
+using Manabot2.WebApi;
 using Microsoft.Extensions.DependencyInjection;
 using Mirai.CSharp.Builders;
 using Mirai.CSharp.HttpApi.Builder;
@@ -200,6 +201,8 @@ namespace Manabot2
                 return 5;
             }
             #endregion
+
+            _ = HttpServer.StartAsync();
 
             timer_sendlowlevelqqmsg = new System.Timers.Timer(1000 * 60 * 60);
             timer_sendlowlevelqqmsg.AutoReset = true;

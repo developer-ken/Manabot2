@@ -134,7 +134,7 @@ namespace Manabot2.EventHandlers
                                     "由于您的QQ等级不足(" + profile.Level + "/16)，您不能加入舰长群。我们将采取以下措施保护您的权益：\n" +
                                     "· 鹿野将在直播后添加您的QQ好友\n" +
                                     "· 您的加群资格将会被保留。当您的QQ等级达到16级后，申请加入舰长群，将通过绿色通道快速加入\n\n" +
-                                    "感谢您的理解与支持。 若对上述信息存在异议，或超过12小时仍未收到鹿野的好友申请，请联系技术负责人鸡蛋(QQ:1250542735)");
+                                    "感谢您的理解与支持。 若对上述信息存在异议，或超过12小时仍未收到鹿野的好友申请，请联系管理员蛋黄(QQ:3584384914)");
                                 bss.Close();
                                 await session.SendGroupMessageAsync(Global.LogGroup, new PlainMessage("[入群申请处理]\n" +
                                     "拒绝进入舰长群：QQ等级不足，触发计划任务(直播进行中)\n" + UserInfo(e.FromQQ, uid)
@@ -148,7 +148,7 @@ namespace Manabot2.EventHandlers
                                     "由于您的QQ等级不足(" + profile.Level + "/16)，您不能加入舰长群。我们将采取以下措施保护您的权益：\n" +
                                     "· 鹿野将添加您的QQ好友\n" +
                                     "· 您的加群资格将会被保留。当您的QQ等级达到16级后，申请加入舰长群，将通过绿色通道快速加入\n\n" +
-                                    "感谢您的理解与支持。 若对上述信息存在异议，或超过24小时仍未收到鹿野的好友申请，请联系技术负责人鸡蛋(QQ:1250542735)");
+                                    "感谢您的理解与支持。 若对上述信息存在异议，或超过24小时仍未收到鹿野的好友申请，请联系管理员蛋黄(QQ:3584384914)");
                                 bss.Close();
                                 await session.SendGroupMessageAsync(Global.LogGroup, new PlainMessage("[入群申请处理]\n" +
                                     "拒绝进入舰长群：QQ等级不足，触发计划任务(夜晚免打扰)\n" + UserInfo(e.FromQQ, uid)
@@ -162,7 +162,7 @@ namespace Manabot2.EventHandlers
                                     "由于您的QQ等级不足(" + profile.Level + "/16)，您不能加入舰长群。我们将采取以下措施保护您的权益：\n" +
                                     "· 鹿野将添加您的QQ好友\n" +
                                     "· 您的加群资格将会被保留。当您的QQ等级达到16级后，申请加入舰长群，将通过绿色通道快速加入\n\n" +
-                                    "感谢您的理解与支持。 若对上述信息存在异议，或超过24小时仍未收到鹿野的好友申请，请联系技术负责人鸡蛋(QQ:1250542735)");
+                                    "感谢您的理解与支持。 若对上述信息存在异议，或超过24小时仍未收到鹿野的好友申请，请联系管理员蛋黄(QQ:3584384914)");
                                 bss.Close();
                                 await session.SendGroupMessageAsync(Global.LogGroup, new PlainMessage("[入群申请处理]\n" +
                                     "拒绝进入舰长群：QQ等级不足，触发计划任务(正常模式)\n" + UserInfo(e.FromQQ, uid)
