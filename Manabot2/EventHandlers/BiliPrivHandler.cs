@@ -37,35 +37,33 @@ namespace Manabot2.EventHandlers
                         if (ssess.lastmessage.content is null) continue;
                         if (ssess.lastmessage.talker.uid == Global.bilisession.getCurrentUserId()) continue;
                         log.Debug($"priv: #{ssess.talker_id} >{ssess.lastmessage.content}");
-                        if (ssess.lastmessage.content.Contains("虚拟福利"))
+                        if (ssess.lastmessage.content.Contains("激活码"))
                         {
                             log.Info($"#{ssess.talker_id} requesting activation code.");
                             //ssess.sendMessage($"由于高峰期服务器压力大，请在直播结束后领取验证码。给您带来不便，敬请谅解。——来自除夕夜系统崩了的鸡蛋🥚");
                             //if (EventHandler.IsCurrentlyCrew(ssess.talker_id))
-                            var crewtime = DataBase.me.GetLatestCrewRecordTime(ssess.talker_id);
-                            if (crewtime > claimCodeStart) //最近一次上舰时间符合要求
+                            if (/*DataBase.me.GetLatestCrewRecordTime(ssess.talker_id) > claimCodeStart || */EventHandler.IsCurrentlyCrew(ssess.talker_id)) //领取要求
                             {
-                                ssess.sendMessage($"感谢您参加本次活动。请通过百度网盘下载附件。\n链接：https://pan.baidu.com/s/1pJRlCxtd4dABQi3B6hiLCQ?pwd=mtwr \r\n提取码：mtwr");
-                                //var code = DataBase.me.getClaimedActivationCode(ssess.talker_id);
-                                //if (code is null || code.Length == 0)
-                                //{
-                                //    code = DataBase.me.claimActivationCode(ssess.talker_id);
-                                //    if (code is null || code.Length == 0)
-                                //    {
-                                //        log.Info($"#{ssess.talker_id} new claim FAILED. STOCK_OUT");
-                                //        ssess.sendMessage($"激活码已经抢完，请联系管理补货！");
-                                //    }
-                                //    else
-                                //    {
-                                //        log.Info($"#{ssess.talker_id} new claim. code={code}");
-                                //        ssess.sendMessage($"感谢您参加本次活动。您的激活码是：\n{code}");
-                                //    }
-                                //}
-                                //else
-                                //{
-                                //    log.Info($"#{ssess.talker_id} redundant. code={code}");
-                                //    ssess.sendMessage($"您已经领取过激活码了。您的激活码是：\n{code}");
-                                //}
+                                var code = DataBase.me.getClaimedActivationCode(ssess.talker_id);
+                                if (code is null || code.Length == 0)
+                                {
+                                    code = DataBase.me.claimActivationCode(ssess.talker_id);
+                                    if (code is null || code.Length == 0)
+                                    {
+                                        log.Info($"#{ssess.talker_id} new claim FAILED. STOCK_OUT");
+                                        ssess.sendMessage($"激活码已经抢完，请联系管理补货！");
+                                    }
+                                    else
+                                    {
+                                        log.Info($"#{ssess.talker_id} new claim. code={code}");
+                                        ssess.sendMessage($"感谢您参加本次活动。您的激活码是：\n{code}");
+                                    }
+                                }
+                                else
+                                {
+                                    log.Info($"#{ssess.talker_id} redundant. code={code}");
+                                    ssess.sendMessage($"您已经领取过激活码了。您的激活码是：\n{code}");
+                                }
                             }
                             else
                             {
@@ -142,7 +140,7 @@ namespace Manabot2.EventHandlers
                         }
                         Thread.Sleep(1000);
                     }
-                    Thread.Sleep(10000);
+                    Thread.Sleep(5000);
                 }
             }).Start();
         }
